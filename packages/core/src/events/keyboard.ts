@@ -673,6 +673,36 @@ export function handleArrowKey(ctx: Context, e: KeyboardEvent) {
   }
 }
 
+// feat(goosefarm): PageUp/PageDown/Home/End 세로 이동 지원(upstream 미구현).
+// 선택 셀을 페이지/맨위/맨끝으로 옮기면 moveHighlightCell이 자동 스크롤한다.
+const PAGE_ROWS = 20;
+export function handlePageHomeEnd(ctx: Context, e: KeyboardEvent) {
+  if (
+    ctx.luckysheetCellUpdate.length > 0 ||
+    ctx.luckysheet_cell_selected_move ||
+    ctx.luckysheet_cell_selected_extend
+  ) {
+    return;
+  }
+  switch (e.key) {
+    case "PageDown":
+      moveHighlightCell(ctx, "down", PAGE_ROWS, "rangeOfSelect");
+      break;
+    case "PageUp":
+      moveHighlightCell(ctx, "down", -PAGE_ROWS, "rangeOfSelect");
+      break;
+    case "Home":
+      moveHighlightCell(ctx, "down", -1e9, "rangeOfSelect");
+      break;
+    case "End":
+      moveHighlightCell(ctx, "down", 1e9, "rangeOfSelect");
+      break;
+    default:
+      break;
+  }
+  e.preventDefault();
+}
+
 export function handleGlobalKeyDown(
   ctx: Context,
   cellInput: HTMLDivElement,
@@ -895,6 +925,13 @@ export function handleGlobalKeyDown(
       kstr === "ArrowRight"
     ) {
       handleArrowKey(ctx, e);
+    } else if (
+      kstr === "PageUp" ||
+      kstr === "PageDown" ||
+      kstr === "Home" ||
+      kstr === "End"
+    ) {
+      handlePageHomeEnd(ctx, e);
     } else if (
       !(
         (kcode >= 112 && kcode <= 123) ||

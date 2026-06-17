@@ -157,6 +157,14 @@ export function handleGlobalWheel(
 
     rowscroll = row_ed === 0 ? 0 : visibledatarow_c[row_ed - 1];
 
+    // fix(goosefarm): 트랙패드 등으로 scrollTop이 행 경계보다 살짝 큰 소수값(예: 1211.2)일 때,
+    // sortedIndex(+1)가 현재 행을 한 칸 위로 잡아 up 스크롤 목표가 "지금 그 경계"로 되돌아가
+    // 제자리에 멈추는 버그. up인데 목표가 현재 위치보다 실제로 내려가지 않으면 한 행 더 올린다.
+    if (e.deltaY < 0 && row_ed > 0 && rowscroll >= scrollTop - 1) {
+      row_ed -= 1;
+      rowscroll = row_ed === 0 ? 0 : visibledatarow_c[row_ed - 1];
+    }
+
     // if (luckysheetFreezen.freezenhorizontaldata != null) {
     //   rowscroll -= luckysheetFreezen.freezenhorizontaldata[0];
     // }
